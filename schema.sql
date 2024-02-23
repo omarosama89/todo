@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS todos;
+
+Create TABLE todos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  status TEXT NOT NULL DEFAULT 'pending',
+  due_to TIMESTAMP
+)

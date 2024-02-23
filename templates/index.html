@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+
+{% block title %}Index{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-header">
+      Todo List
+    </div>
+    <div class="card-body">
+      <ul class="list-group">
+      {% for todo in todos %}
+        <li class="list-group-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-1">{{ todo['title'] }}</h5>
+              <p class="mb-1">{{ todo['description'] }}</p>
+              {% if todo['status'] == 'pending' %}
+                <span class="badge badge-secondary">{{todo['status']}}</span>
+              {% elif todo['status'] == 'canceled' %}
+                <span class="badge badge-warning">{{todo['status']}}</span>
+              {% else %}
+                <span class="badge badge-success">{{todo['status']}}</span>
+              {% endif %}
+              <p class="mb-1">{{ todo['due_to'] }}</p>
+            </div>
+            <div>
+              <form action="{{ url_for('done', id=todo['id']) }}" method="post" style="display: inline;">
+                  <button type="submit" class="btn btn-success btn-sm mr-2" {{ 'disabled' if todo['status'] == 'done' }} >Done</button>
+              </form>
+              <form action="{{ url_for('cancel', id=todo['id']) }}" method="post" style="display: inline;">
+                  <button type="submit" class="btn btn-warning btn-sm mr-2" {{ 'disabled' if todo['status'] == 'canceled' }}>Cancel</button>
+              </form>
+              <form action="{{ url_for('edit', id=todo['id']) }}" method="GET" style="display: inline;">
+                  <button type="submit" class="btn btn-primary btn-sm mr-2">Edit</button>
+              </form>
+              <form action="{{ url_for('delete', id=todo['id']) }}" method="post" style="display: inline;">
+                  <button type="submit" class="btn btn-danger btn-sm mr-2">Delete</button>
+              </form>
+          </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="card-footer">
+      <form method="post" action={{url_for('create')}}>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="Enter title">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="due_to">Due To</label>
+            <input type="date" class="form-control" name="due_to" id="due_to">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
