@@ -2,7 +2,7 @@ from flask import render_template, request, url_for, redirect
 from app import app, db
 from flask_bootstrap import Bootstrap4
 from forms.add_from import AddForm
-from db import Todo
+from models.todo import Todo
 from datetime import datetime
 
 bootstrap = Bootstrap4(app)
