@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block title %}Index{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-header">
+        <a href="{{ url_for('index') }}">Back to List</a> > Todo Add
+    </div>
+    <div class="card-body">
+      <form method="post" action={{url_for('create')}}>
+        {{ form.hidden_tag() }}
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            {{ form.title.label(for="title") }}
+            {{ form.title(class="form-control") }}
+            {% for error in form.title.errors %}
+                <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+          <div class="form-group col-md-6">
+            {{ form.due_to.label(for="due_to") }}
+            {{ form.due_to(class="form-control") }}
+            {% for error in form.due_to.errors %}
+                <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="form-group">
+          {{ form.description.label(for="description") }}
+          {{ form.description(class="form-control") }}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

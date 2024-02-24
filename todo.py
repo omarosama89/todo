@@ -1,7 +1,9 @@
 from flask import render_template, request, url_for, redirect
-from app import app
+from app import app, db
 from flask_bootstrap import Bootstrap4
-from db import get_db
+from forms.add_from import AddForm
+from db import Todo
+from datetime import datetime
 
 bootstrap = Bootstrap4(app)
 
@@ -11,74 +13,56 @@ def root():
 
 @app.route("/todos")
 def index():
-    db = get_db()
-    todos = db.execute('SELECT * FROM todos').fetchall()
-    db.close()
+    # ipdb.set_trace()
+    todos = Todo.query.all()
     return render_template("index.html", todos=todos)
 
 @app.route("/todos/create", methods=['GET', 'POST'])
 def create():
-    todo = (
-        request.form['title'],
-        request.form['description'],
-        request.form['due_to']
+    form = AddForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            todo = Todo(
+                title=request.form['title'],
+                description=request.form['description'],
+                due_to=datetime.strptime(request.form['due_to'], '%Y-%m-%d')
             )
-    db = get_db()
-    cur = db.cursor()
-    cur.execute("INSERT INTO todos (title, description, due_to) VALUES (?, ?, ?)",
-                (
-                    todo
-                )
-                )
-    db.commit()
-    db.close()
-    return redirect(url_for('index'))
+            db.session.add(todo)
+            db.session.commit()
+            return redirect(url_for('index'))
+    return render_template('create.html', form=form)
 
 @app.route("/todos/<int:id>/done", methods=['POST'])
 def done(id):
-    db = get_db()
-    cur = db.cursor()
-    cur.execute("UPDATE todos SET status = 'done' WHERE id=" + str(id))
-    db.commit()
-    db.close()
+    todo = Todo.query.get(id)
+    todo.status = 'done'
+    db.session.commit()
     return redirect(url_for('index'))
 
 @app.route("/todos/<int:id>/cancel", methods=['POST'])
 def cancel(id):
-    db = get_db()
-    cur = db.cursor()
-    cur.execute("UPDATE todos SET status = 'canceled' WHERE id=" + str(id))
-    db.commit()
-    db.close()
+    todo = Todo.query.get(id)
+    todo.status = 'canceled'
+    db.session.commit()
     return redirect(url_for('index'))
 
 @app.route("/todos/<int:id>/delete", methods=['POST'])
 def delete(id):
-    db = get_db()
-    cur = db.cursor()
-    cur.execute("DELETE FROM todos WHERE id=" + str(id))
-    db.commit()
-    db.close()
+    todo = Todo.query.get(id)
+    db.session.delete(todo)
+    db.session.commit()
     return redirect(url_for('index'))
 
 @app.route("/todos/<int:id>/edit", methods=['GET', 'POST'])
 def edit(id):
-    db = get_db()
-    if request.method == 'GET':
-        todo = db.execute('SELECT * FROM todos where id =' + str(id)).fetchall()[0]
-        db.close()
-        return render_template('edit.html', todo=todo)
-    else:
-        cur = db.cursor()
-        todo = (
-            request.form['title'],
-            request.form['description'],
-            request.form['due_to']
-        )
-        cur.execute(
-            "UPDATE todos SET title = ?, description = ?, due_to = ? WHERE id=" + str(id),
-            todo
-        )
-        db.commit()
-        db.close()
-        return redirect(url_for("index"))
+    form = AddForm()
+    todo = Todo.query.get(id)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            todo = Todo.query.get(id)
+            todo.title = request.form['title']
+            todo.description = request.form['description']
+            todo.due_to = datetime.strptime(request.form['due_to'], '%Y-%m-%d')
+            db.session.commit()
+            return redirect(url_for("index"))
+    return render_template('edit.html', todo=todo, form=form)

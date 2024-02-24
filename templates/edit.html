@@ -9,23 +9,31 @@
         <a href="{{ url_for('index') }}">Back to List</a> > Todo Edit
     </div>
     <div class="card-body">
-        <form method="post" action={{url_for('edit', id=todo['id'])}}>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="title">Title</label>
-            <input type="text" class="form-control" id="title" name="title" placeholder="Enter title" value="{{todo['title']}}">
-          </div>
-          <div class="form-group col-md-6">
-            <label for="due_to">Due To</label>
-            <input type="date" class="form-control" name="due_to" id="due_to" value="{{ todo['due_to'] }}">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description" value="{{ todo['title'] }}">{{ todo['description'] }}</textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Update</button>
-      </form>
+        <form method="post" action={{url_for('edit', id=todo.id)}}>
+            {{ form.hidden_tag() }}
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                  {{ form.title.label(for="title") }}
+                  {{ form.title(class="form-control", value=todo.title) }}
+                  {% for error in form.title.errors %}
+                      <span class="text-danger">{{ error }}</span>
+                  {% endfor %}          </div>
+              <div class="form-group col-md-6">
+                  <div class="form-group col-md-6">
+                    {{ form.due_to.label(for="due_to") }}
+                    {{ form.due_to(class="form-control", value=todo.due_to) }}
+                    {% for error in form.due_to.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description" value="{{ todo['title'] }}">{{ todo.description }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+          </form>
     </div>
   </div>
 </div>
