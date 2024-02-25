@@ -7,8 +7,18 @@
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
       <span>Todo List</span>
-      <a href=""></a>
       <a href="{{ url_for('create') }}" class="btn btn-primary">Add</a>
+    </div>
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <li class="alert">
+                      <span class="text-danger">{{ message }}</span>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </div>
     <div class="card-body">
       <ul class="list-group">
@@ -45,6 +55,18 @@
         </li>
         {% endfor %}
       </ul>
+    </div>
+    <div class="card-footer">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Bulk Actions</span>
+        <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
+          <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" accept=".csv">
+          <button type="submit" class="btn btn-info btn-sm">Upload CSV</button>
+        </form>
+        </div>
+        <a href="{{ url_for('download') }}" >Download (.csv)</a>
+      </div>
     </div>
   </div>
 </div>
