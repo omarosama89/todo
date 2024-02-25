@@ -71,25 +71,34 @@ def edit(id):
 
 @app.route("/todos/download")
 def download():
-    data = Todo.query.all()
+    todos = Todo.query.all()
+
+    if len(todos) == 0:
+        flash('No data to download')
+        return render_template("index.html", todos=todos)
 
     csv_data = io.StringIO()
     csv_writer = csv.writer(csv_data)
     csv_writer.writerow(Todo.__table__.columns.keys())  # Write headers
-    for row in data:
+    for row in todos:
         csv_writer.writerow([getattr(row, column.name) for column in Todo.__table__.columns])
 
     response = make_response(csv_data.getvalue())
-    response.headers['Content-Disposition'] = 'attachment; filename=data.csv'
+    response.headers['Content-Disposition'] = 'attachment; filename=todos.csv'
     response.headers['Content-type'] = 'text/csv'
 
     return response
 
 @app.route("/todos/upload", methods=["POST"])
 def upload():
+    todos = Todo.query.all()
     file = request.files['file']
 
     if file.filename == '':
+        flash('No file provided')
+        return render_template("index.html", todos=todos)
+
+    if file.filename.rsplit('.', 1)[1].lower() != 'csv':
         flash('You need to provide a csv file')
         return render_template("index.html", todos=todos)
 
