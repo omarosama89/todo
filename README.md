@@ -24,6 +24,24 @@ This app is using Flask as a web framework and Sqlite database as a data storage
 
 Congrats, now the app is up and running, you can access the side from this url `http://127.0.0.1:5000/`
 
+## API
+
+All these functionalities can be used an API endpoints
+
+- List todos `GET` `/api/todos`
+- Show todo `GET` `/api/todos/<id>`
+- Mark as done/canceled `POST` `/api/todos/<id>/done` `/api/todos/<id>/cancel`
+- Delete Todo `POST` `/api/todos/<id>/delete`
+- Create/update todo `POST` `/api/todos` `/api/todos/<id>/edit`
+```commandline
+{
+    "title": "New title",
+    "description": "new description",
+    "due_to": "2024-03-03"
+}
+```
+
+
 ## Docker
 If you don't want to install all the dependencies, you can use docker to run the container, you just need to have `docker` installed in your machine then follow these instructions
 

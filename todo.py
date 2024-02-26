@@ -1,4 +1,4 @@
-from flask import render_template, request, url_for, redirect, make_response, flash
+from flask import render_template, request, url_for, redirect, make_response, flash, jsonify, abort
 from app import app, db
 from flask_bootstrap import Bootstrap4
 from forms.add_from import AddForm
@@ -6,8 +6,11 @@ from models.todo import Todo
 from datetime import datetime
 import csv
 import io
+from api import api_bp
 
 bootstrap = Bootstrap4(app)
+
+app.register_blueprint(api_bp, url_prefix='/api')
 
 @app.route("/")
 def root():
@@ -15,7 +18,6 @@ def root():
 
 @app.route("/todos")
 def index():
-    # ipdb.set_trace()
     todos = Todo.query.all()
     return render_template("index.html", todos=todos)
 
@@ -37,31 +39,42 @@ def create():
 @app.route("/todos/<int:id>/done", methods=['POST'])
 def done(id):
     todo = Todo.query.get(id)
-    todo.status = 'done'
-    db.session.commit()
-    return redirect(url_for('index'))
+    if todo:
+        todo.status = 'done'
+        db.session.commit()
+        return redirect(url_for('index'))
+    else:
+        abort(404)
+
 
 @app.route("/todos/<int:id>/cancel", methods=['POST'])
 def cancel(id):
     todo = Todo.query.get(id)
-    todo.status = 'canceled'
-    db.session.commit()
-    return redirect(url_for('index'))
+    if todo:
+        todo.status = 'canceled'
+        db.session.commit()
+        return redirect(url_for('index'))
+    else:
+        abort(404)
 
 @app.route("/todos/<int:id>/delete", methods=['POST'])
 def delete(id):
     todo = Todo.query.get(id)
-    db.session.delete(todo)
-    db.session.commit()
-    return redirect(url_for('index'))
+    if todo:
+        db.session.delete(todo)
+        db.session.commit()
+        return redirect(url_for('index'))
+    else:
+        abort(404)
 
 @app.route("/todos/<int:id>/edit", methods=['GET', 'POST'])
 def edit(id):
     form = AddForm()
     todo = Todo.query.get(id)
+    if todo is None:
+        abort(404)
     if request.method == 'POST':
         if form.validate_on_submit():
-            todo = Todo.query.get(id)
             todo.title = request.form['title']
             todo.description = request.form['description']
             todo.due_to = datetime.strptime(request.form['due_to'], '%Y-%m-%d')
